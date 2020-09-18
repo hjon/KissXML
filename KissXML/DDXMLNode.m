@@ -1605,12 +1605,21 @@ static void MarkDeath(void *xmlPtr, DDXMLNode *wrapper);
 			if (!nsResidesWithinNewRoot)
 			{
 				// Create a copy of the namespace, add to node's nsDef list, and then set as attribute's ns
-				xmlNsPtr attrNsCopy = xmlNewNs(NULL, attrNs->href, attrNs->prefix);
 				
-				attrNsCopy->next = node->nsDef;
-				node->nsDef = attrNsCopy;
+				const xmlChar *href;
+				if (!xmlStrEqual(attrNs->prefix, BAD_CAST "xml"))
+				{
+					href = attrNs->href;
+				}
+				xmlNsPtr attrNsCopy = xmlNewNs(NULL, href, attrNs->prefix);
 				
-				attr->ns = attrNsCopy;
+				if (attrNsCopy)
+				{
+					attrNsCopy->next = node->nsDef;
+					node->nsDef = attrNsCopy;
+					
+					attr->ns = attrNsCopy;
+				}
 			}
 			
 			attrNs = attrNs->next;
@@ -2689,7 +2698,12 @@ BOOL DDXMLIsZombie(void *xmlPtr, DDXMLNode *wrapper)
 		
 		if (attr->ns && (attr->ns != attrNsPtr))
 		{
-			attrNsPtr = xmlNewNs(NULL, attr->ns->href, attr->ns->prefix);
+			const xmlChar *href;
+			if (!xmlStrEqual(attr->ns->prefix, BAD_CAST "xml"))
+			{
+				href = attr->ns->href;
+			}
+			attrNsPtr = xmlNewNs(NULL, href, attr->ns->prefix);
 		}
 		
 		[[self class] detachAttribute:attr];

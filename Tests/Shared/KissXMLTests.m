@@ -1450,6 +1450,46 @@
         XCTAssert(dda != nil, @"Failed test 1");
     }}
 
+- (void)testXMLPrefix { @autoreleasepool
+    {
+        NSLog(@"Starting %@...", NSStringFromSelector(_cmd));
+        
+        NSString *str = @"<presence xml:lang='en'></presence>";
+        NSError *error;
+        
+        // Test 1 - parsing
+        
+        error = nil;
+        NSXMLElement *nsPresence = [[NSXMLElement alloc] initWithXMLString:str error:&error];
+        XCTAssert((nsPresence != nil) && (error == nil), @"Failed CHECK 1");
+        
+        error = nil;
+        DDXMLElement *ddPresence = [[DDXMLElement alloc] initWithXMLString:str error:&error];
+        XCTAssert((ddPresence != nil) && (error == nil), @"Failed test 1");
+        
+        // Test 2 - attribute
+        
+        NSXMLNode *nsa = [nsPresence attributeForName:@"xml:lang"];
+        DDXMLNode *dda = [ddPresence attributeForName:@"xml:lang"];
+        
+        XCTAssert(nsa != nil, @"Failed CHECK 2");
+        XCTAssert(dda != nil, @"Failed test 2");
+        
+        // Test 3 - detaching
+        
+        NSXMLDocument *nsDoc = [[NSXMLDocument alloc] initWithXMLString:str options:0 error:nil];
+        NSXMLNode *nsLangAttribute = [[nsDoc rootElement] attributeForName:@"xml:lang"];
+        [nsLangAttribute detach];
+        
+        XCTAssert([[nsLangAttribute name] isEqualToString:@"xml:lang"], @"Failed CHECK 3");
+        
+        DDXMLDocument *ddDoc = [[DDXMLDocument alloc] initWithXMLString:str options:0 error:nil];
+        DDXMLNode *ddLangAttribute = [[ddDoc rootElement] attributeForName:@"xml:lang"];
+        [ddLangAttribute detach];
+                
+        XCTAssert([[ddLangAttribute name] isEqualToString:@"xml:lang"], @"Failed test 3");
+    }}
+
 - (void)testAttrNs { @autoreleasepool
     {
         NSLog(@"Starting %@...", NSStringFromSelector(_cmd));
